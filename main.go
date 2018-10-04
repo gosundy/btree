@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 )
 
 const Jie =3
+var SUM=0
 type BtreeNode struct{
 	NodeNum int
 	head *Node
@@ -18,7 +21,14 @@ type Node struct{
 }
 func main() {
  var root *BtreeNode
- data:=[]int{1,2,3,4,5,6,7,8,9,0,65,34,68,90}
+rand.Seed(time.Now().Unix())
+data:=make([]int,0)
+for i:=0;i<1000;i++{
+	n:=rand.Intn(1000000000)
+	data=append(data,n)
+}
+fmt.Println(data)
+//data:=[]int{81,87,47,59,81,18,25,40,56,0}
  for _,v:=range data{
  	node:=insert(&root,v)
  	//产生溢出
@@ -31,6 +41,7 @@ func main() {
  //root=insert(&root,data[2])
  //insert(&root,data[3])
  travelBt(root)
+ fmt.Println(SUM)
 }
 func insert(btNode **BtreeNode,v int)*BtreeNode{
 	if *btNode==nil{
@@ -46,6 +57,9 @@ func insert(btNode **BtreeNode,v int)*BtreeNode{
 		if head.next.left==nil{
 			//先插入节点
 			for head.next!=nil{
+				if v==head.next.data{
+					return nil
+				}
 				if v<head.next.data{
 					node:=&Node{data:v}
 					node.next=head.next
@@ -86,6 +100,9 @@ func insert(btNode **BtreeNode,v int)*BtreeNode{
 			var preBtNode *BtreeNode
 			head=(*btNode).head
 			for head.next!=nil{
+				if v==head.next.data{
+					return nil
+				}
 				if v<head.next.data{
 					preBtNode=insert(&head.next.left,v)
 					break
@@ -102,10 +119,8 @@ func insert(btNode **BtreeNode,v int)*BtreeNode{
 				//先插入节点
 				for head.next != nil {
 					if node.data < head.next.data {
-						node.next = head.next.next
+						node.next = head.next
 						head.next = node
-
-						(*btNode).NodeNum = (*btNode).NodeNum + 1
 						break
 					}
 					head = head.next
@@ -113,7 +128,7 @@ func insert(btNode **BtreeNode,v int)*BtreeNode{
 				if head.next==nil{
 					head.next=node
 				}
-				//左分支进行比较
+				//将新节点有分支的赋值与右边节点的左分支，因为遍历的时候是遍历的左分支
 				if node.next!=nil{
 					node.next.left=node.right
 					node.right=nil
@@ -132,6 +147,9 @@ func insert(btNode **BtreeNode,v int)*BtreeNode{
 					leftBtNode:=&BtreeNode{NodeNum:mid-1,head:(*btNode).head}
 					rightBtNode:=&BtreeNode{NodeNum:(*btNode).NodeNum-mid,head:&Node{}}
 					rightBtNode.head.next=midNode.next
+					if midNode.left!=nil{
+						head.right=midNode.left
+					}
 					midNode.left=leftBtNode
 					midNode.right=rightBtNode
 					head.next=nil
@@ -156,7 +174,8 @@ func travelBt(root *BtreeNode){
 	for head.next!=nil{
 		travelBt(head.next.left)
 		fmt.Println(head.next.data)
+		SUM=SUM+1
 		head=head.next
 	}
-	travelBt(head.right)
+	 travelBt(head.right)
 }
